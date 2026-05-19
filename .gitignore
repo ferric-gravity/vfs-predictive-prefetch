@@ -1,0 +1,17 @@
+# Environments
+venv/
+env/
+.env
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data (We will ignore large raw CSVs but keep the folder)
+data/*.csv
+!data/.gitkeep
+
+# IDEs
+.vscode/
+.idea/
