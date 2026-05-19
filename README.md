@@ -16,7 +16,7 @@ Virtual File Systems (VFS for Git / Scalar) solve the problem of cloning 50GB+ r
 
 ---
 
-##  The Problem: Reactive VFS
+## The Problem: Reactive VFS
 
 In a standard VFS setup, the system is entirely reactive. You ask for a file, you wait for the download, and *then* you can work.
 
@@ -35,12 +35,12 @@ sequenceDiagram
     Cloud-->>VFS: Download complete
     VFS-->>IDE: Serve file
     IDE-->>Dev: File visible
+```
 
-##  The Solution: Predictive Hydration
+## The Solution: Predictive Hydration
 
 We shift the paradigm from reactive to proactive. By calculating the mathematical probability of developer workflows (e.g., if you touch `login.py`, there is an 85% chance you will need `test_login.py` next), we can fetch the necessary data invisibly.
 
-```text
 ```mermaid
 graph LR
     %% Minimalist Black & White Styling
@@ -70,41 +70,8 @@ graph LR
     %% The Magic
     Cloud -.->|Pre-warms Cache| OS
     OS ===>|Zero-Latency Read| Dev
+```
 
 ---
 
-##  Architecture & How It Works
-
-This project bridges system-level monitoring with lightweight machine learning. It is divided into four modular micro-components:
-
-1. **The Telemetry Simulator (`generate_mock_data.py`)**
-   Since enterprise VFS logs are proprietary, this script generates thousands of realistic developer interactions, simulating co-occurring file opens across different workflows (Auth, UI, Payments).
-   
-2. **The Analytics Engine (`engine.py`)**
-   Powered by **Pandas**, this module ingests chronological file-read events and builds a Markov Chain transition matrix. It provides instant $O(1)$ lookups for the highest-probability "next files."
-
-3. **The Watcher Daemon (`watcher.py`)**
-   A low-overhead background process using Python's `watchdog`. It hooks directly into operating system file events. When you modify a file, the daemon queries the Analytics Engine and triggers background VFS hydration without blocking your main thread.
-
-4. **The Live Dashboard (`routes.py` & `main.py`)**
-   A **FastAPI** web interface that visualizes the daemon's success rate in real-time, tracking manual file reads versus zero-latency prefetches.
-
----
-
-##  Getting Started
-
-Want to see the predictive magic on your local machine? 
-
-### 1. Installation
-Clone the repository and install the required dependencies:
-```bash
-git clone [https://github.com/adityamittal/vfs-predictive-prefetch.git](https://github.com/adityamittal/vfs-predictive-prefetch.git)
-cd vfs-predictive-prefetch
-python -m venv venv
-
-# On Mac/Linux:
-source venv/bin/activate  
-# On Windows:
-# venv\Scripts\activate
-
-pip install -r requirements.txt
+## Architecture &
