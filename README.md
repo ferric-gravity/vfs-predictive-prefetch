@@ -1,4 +1,4 @@
-# ⚡ VFS Predictive Prefetcher 
+# VFS Predictive Prefetcher 
 **Zero-Latency File Hydration for Massive Git Monorepos**
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
