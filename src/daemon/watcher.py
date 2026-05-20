@@ -2,12 +2,16 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from src.analytics.engine import PredictionEngine
+from src.daemon.prefetcher import VFSPrefetcher # <--- Import the Hands
 
 class VFSHandler(FileSystemEventHandler):
     def __init__(self, engine: PredictionEngine, repo_name: str, log_callback=None):
         self.engine = engine
         self.repo_name = repo_name
-        self.log_callback = log_callback # Hook to send data to the API
+        self.log_callback = log_callback
+        
+        # Initialize the Prefetcher (The Hands)
+        self.prefetcher = VFSPrefetcher(log_callback=log_callback)
 
     def process_event(self, event):
         if event.is_directory:
@@ -17,19 +21,16 @@ class VFSHandler(FileSystemEventHandler):
         if self.repo_name in filepath:
             relative_path = filepath.split(f"{self.repo_name}/")[-1]
             
-            # Log the detection
             detect_msg = f"Detected interaction with: {relative_path}"
             print(f"\n[Daemon] {detect_msg}")
             if self.log_callback:
                 self.log_callback("event", detect_msg)
             
             predictions = self.engine.predict(relative_path)
+            
+            # Hand the predictions over to the Prefetcher!
             if predictions:
-                for p in predictions:
-                    prefetch_msg = f"Background hydrating: {p}"
-                    print(f"  -> [VFS Command] {prefetch_msg}")
-                    if self.log_callback:
-                        self.log_callback("prefetch", prefetch_msg)
+                self.prefetcher.hydrate(predictions)
 
     def on_modified(self, event):
         self.process_event(event)
